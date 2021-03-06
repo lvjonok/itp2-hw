@@ -1,3 +1,6 @@
+#ifndef ITP2_HW_ACCESSLEVELS_H
+#define ITP2_HW_ACCESSLEVELS_H
+
 /*
 Access levels:
 no_level - ClassRoom,
@@ -12,3 +15,5 @@ enum class AccessLevel : int{
     yellow = 2,
     red = 3
 };
+
+#endif //ITP2_HW_ACCESSLEVELS_H
