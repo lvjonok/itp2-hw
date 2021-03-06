@@ -53,7 +53,7 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &os, const User &user) {
-    os << user.name << " " << user.surname << " " << user.property << " " << user.level;
+    os << user.name << " " << user.surname << " | " << user.property << " | " << user.level;
 
     return os;
 }

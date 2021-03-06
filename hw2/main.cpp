@@ -25,6 +25,38 @@ int select_element(std::vector<T *> variants) {
     return user_idx;
 }
 
+/*
+ * Function allows to select the current user of this system
+ */
+User *select_user(std::vector<User *> users) {
+    User *current_user = nullptr;
+
+    // admins are in these indices
+    auto admin1 = users[2];
+    auto admin2 = users[3];
+
+    bool appropriate_selection = false;
+    do {
+        int user_idx = select_element(users);
+        current_user = users[user_idx];
+        if (current_user == admin1 || current_user == admin2) {
+            std::cout << "[INFO] You are trying to enter as admin. Enter the password:" << std::endl;
+            std::string user_password;
+            std::cin >> user_password;
+            if (is_password(user_password)) {
+                std::cout << "[INFO] Password is correct. Enjoy!" << std::endl;
+                appropriate_selection = true;
+            } else {
+                appropriate_selection = false;
+                std::cout << "[INFO] Password is wrong. You return to user selection menu" << std::endl;
+            }
+        } else {
+            appropriate_selection = true;
+        }
+    } while (!appropriate_selection);
+
+    return current_user;
+}
 
 int main() {
     auto director = new Director("Kirill", "Semenikhin", "Microsoft");
@@ -127,8 +159,8 @@ int main() {
     }
 
     std::cout << "To start with, select yourself. Input idx from parenthesis to select needed user:\n";
-    int user_idx = select_element(university_people);
-    auto current_user = university_people[user_idx];
+
+    auto current_user = select_user(university_people);
     std::cout << "[INFO] You are " << current_user->get_name_surname() << std::endl;
 
     int action = -1;
@@ -136,11 +168,13 @@ int main() {
         action = select_element(current_user->get_actions());
         std::cout << "[INFO] User selected ==> " << *current_user->get_actions()[action] << std::endl;
         switch (action) {
+            // Case 1: change of user
             case 1: {
-                current_user = university_people[select_element(university_people)];
+                current_user = select_user(university_people);
                 std::cout << "[INFO] You changed user. Now you are " << current_user->get_name_surname() << std::endl;
             }
                 break;
+            // Case 2: Access to room
             case 2: {
                 auto selected_room = university_building[select_element(university_building)];
                 auto result = selected_room->access(current_user);
@@ -148,26 +182,34 @@ int main() {
                 else std::cout << "[INFO] Access denied. You have no rights to enter. Stay away!" << std::endl;
             }
                 break;
+            // Case 3: Get name and surname of user
             case 3: {
                 auto result = current_user->get_name_surname();
                 std::cout << "[INFO] You are " << result << std::endl;
             }
                 break;
+            // Case 4: Get property of user
             case 4: {
                 auto result = current_user->get_property();
                 std::cout << "[INFO] Your property is " << result << std::endl;
             }
                 break;
+            // Case 5: Get level of access of user
             case 5: {
                 auto result = current_user->get_level();
                 std::cout << "[INFO] Your level is " << result << std::endl;
             }
                 break;
+            // Case 6: Grant Access (available only for admins)
             case 6: {
+                std::cout
+                        << "[INFO] To grant access to someone, on first selection choose person, then choose room. "
+                           "After this an access will be granted."
+                        << std::endl;
                 auto selected_user = university_people[select_element(university_people)];
                 auto selected_room = university_building[select_element(university_building)];
 
-                std::cout << "[INFO] You grant " << selected_user << " an access to " << selected_room << std::endl;
+                std::cout << "[INFO] You grant " << *selected_user << " an access to " << *selected_room << std::endl;
 
                 // we cast current user because this action is available only for admin
                 ((Admin *) current_user)->grant_access(selected_user, selected_room);

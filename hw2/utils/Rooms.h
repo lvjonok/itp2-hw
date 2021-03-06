@@ -44,7 +44,7 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &os, const Room &room) {
-    os << room.get_id() << " " << room.get_level() << " " << (room.is_special() ? "True" : "False");
+    os << room.get_id() << " " << room.get_level();
     return os;
 }
 
@@ -80,6 +80,7 @@ public:
 
     // Overriding method for access because user should be in granted_users list
     bool access(User *user) {
+        if (user->is_admin()) return true;
         // we look through all granted users and in case of match give access
         for (auto granted_user : this->granted_users) {
             if (user == granted_user)
@@ -115,7 +116,7 @@ public:
     // Overriding method for access because user should be in granted_users list
     bool access(User *user) override {
         // base case for granting an access is being the owner of this cabinet
-        if (user == owner)
+        if (user == owner || user->is_admin())
             return true;
         // we look through all granted users and in case of match give access
         for (auto granted_user : this->granted_users) {
