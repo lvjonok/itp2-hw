@@ -16,4 +16,23 @@ enum class AccessLevel : int{
     red = 3
 };
 
+std::ostream& operator<< ( std::ostream& os, const AccessLevel& a ) {
+    switch (a) {
+        case AccessLevel::no_level:
+            os << "no_level";
+            break;
+        case AccessLevel::green:
+            os << "green";
+            break;
+        case AccessLevel::yellow:
+            os << "yellow";
+            break;
+        case AccessLevel::red:
+            os << "red";
+            break;
+    }
+
+    return os;
+}
+
 #endif //ITP2_HW_ACCESSLEVELS_H

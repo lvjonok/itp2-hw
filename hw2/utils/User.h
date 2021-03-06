@@ -25,6 +25,13 @@ public:
     virtual bool is_admin() {
         return false;
     }
+    friend std::ostream& operator<< ( std::ostream& os, const User& user );
 };
+
+std::ostream& operator<< ( std::ostream& os, const User& user ) {
+    os << user.name << " " << user.surname << " " << user.level;
+
+    return os;
+}
 
 #endif //ITP2_HW_USER_H
