@@ -4,18 +4,24 @@
 #include "utils/Rooms.h"
 #include "utils/Security.h"
 
-template <class T>
+template<class T>
 /*
  * Function accepts a vector of pointers to generic type T
  * User has to input an index which he chooses from this vector
  */
-int select_element(std::vector<T*> variants) {
+int select_element(std::vector<T *> variants) {
     int idx = 0;
     for (auto element: variants) {
         std::cout << "(" << idx++ << ") " << *element << std::endl;
     }
-    int user_idx;
-    std::cin >> user_idx;
+    int user_idx = -1;
+    while (user_idx < 0 || user_idx >= variants.size()) {
+        std::cin >> user_idx;
+        if ((user_idx < 0 || user_idx >= variants.size())) {
+            std::cout << "You entered invalid index, pls, try again." << std::endl;
+        }
+    }
+
     return user_idx;
 }
 
@@ -27,8 +33,10 @@ int main() {
     auto admin2 = new Admin("Nikita", "Takov", "nick420069");
 
     auto prof1 = new Professor("Igor", "Gaponov", "Head, Lab of Intelligent Robotics Systems");
-    auto prof2 = new Professor("Alexandr", "Klimchik", "Head, Center for Technologies in Robotics and Mechatronics Components");
-    auto prof3 = new Professor("Eugene", "Zouev", "Head of the Lab of Operating Systems, programming languages and compilers");
+    auto prof2 = new Professor("Alexandr", "Klimchik",
+                               "Head, Center for Technologies in Robotics and Mechatronics Components");
+    auto prof3 = new Professor("Eugene", "Zouev",
+                               "Head of the Lab of Operating Systems, programming languages and compilers");
     auto prof4 = new Professor("Rasheed", "Hussain", "Head, Lab of Networks and blockchain");
 
     auto worker1 = new LabEmployee("Pavel", "Kozlov", "industrial robotics");
@@ -69,12 +77,11 @@ int main() {
     auto software_lab = new LabCabinet("AI and Software Production lab", {worker6, worker7, worker8});
 
     // vector contains all people present in this solution
-    std::vector<User*> university_people;
+    std::vector<User *> university_people;
     {
         university_people.push_back(director);
         university_people.push_back(admin1);
         university_people.push_back(admin2);
-        university_people.push_back(prof1);
         university_people.push_back(prof1);
         university_people.push_back(prof2);
         university_people.push_back(prof3);
@@ -105,7 +112,8 @@ int main() {
         university_people.push_back(student16);
     }
     // vector contains all rooms implemented in this solution
-    std::vector<Room*> university_building; {
+    std::vector<Room *> university_building;
+    {
         university_building.push_back(director_cabinet);
         university_building.push_back(study_room);
         university_building.push_back(conference_hall);
@@ -118,6 +126,57 @@ int main() {
         university_building.push_back(prof4_cabinet);
     }
 
+    std::cout << "To start with, select yourself. Input idx from parenthesis to select needed user:\n";
+    int user_idx = select_element(university_people);
+    auto current_user = university_people[user_idx];
+    std::cout << "[INFO] You are " << current_user->get_name_surname() << std::endl;
+
+    int action = -1;
+    while (action != 0) {
+        action = select_element(current_user->get_actions());
+        std::cout << "[INFO] User selected ==> " << *current_user->get_actions()[action] << std::endl;
+        switch (action) {
+            case 1: {
+                current_user = university_people[select_element(university_people)];
+                std::cout << "[INFO] You changed user. Now you are " << current_user->get_name_surname() << std::endl;
+            }
+                break;
+            case 2: {
+                auto selected_room = university_building[select_element(university_building)];
+                auto result = selected_room->access(current_user);
+                if (result) std::cout << "[INFO] You have access to this room. Enter!)" << std::endl;
+                else std::cout << "[INFO] Access denied. You have no rights to enter. Stay away!" << std::endl;
+            }
+                break;
+            case 3: {
+                auto result = current_user->get_name_surname();
+                std::cout << "[INFO] You are " << result << std::endl;
+            }
+                break;
+            case 4: {
+                auto result = current_user->get_property();
+                std::cout << "[INFO] Your property is " << result << std::endl;
+            }
+                break;
+            case 5: {
+                auto result = current_user->get_level();
+                std::cout << "[INFO] Your level is " << result << std::endl;
+            }
+                break;
+            case 6: {
+                auto selected_user = university_people[select_element(university_people)];
+                auto selected_room = university_building[select_element(university_building)];
+
+                std::cout << "[INFO] You grant " << selected_user << " an access to " << selected_room << std::endl;
+
+                // we cast current user because this action is available only for admin
+                ((Admin *) current_user)->grant_access(selected_user, selected_room);
+            }
+                break;
+            default:
+                break;
+        }
+    }
 
 
 }

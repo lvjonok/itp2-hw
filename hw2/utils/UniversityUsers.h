@@ -6,54 +6,62 @@
 #ifndef ITP2_HW_UNIVERSITYUSERS_H
 #define ITP2_HW_UNIVERSITYUSERS_H
 
-class Student : public User
-{
+class Student : public User {
     // real property of student is having his group_id, like "BS20-03"
 public:
-    Student(std::string name, std::string surname, std::string group_id) : User(std::move(name), std::move(surname), AccessLevel::yellow) {
+    Student(std::string name, std::string surname, std::string group_id) : User(std::move(name), std::move(surname),
+                                                                                AccessLevel::yellow) {
         this->property = std::move(group_id);
     }
 };
 
 
-class Professor : public User
-{
+class Professor : public User {
     // real property of professor is his/her position in university labs
 public:
-    Professor(std::string name, std::string surname, std::string title) : User(std::move(name), std::move(surname), AccessLevel::yellow) {
+    Professor(std::string name, std::string surname, std::string title) : User(std::move(name), std::move(surname),
+                                                                               AccessLevel::yellow) {
         this->property = std::move(title);
     }
 };
 
-class LabEmployee : public User
-{
+class LabEmployee : public User {
     // real property of lab employee is his/her area_of_interest which is pretty much the same as the name of lab
 public:
-    LabEmployee(std::string name, std::string surname, std::string area) : User(std::move(name), std::move(surname), AccessLevel::green) {
+    LabEmployee(std::string name, std::string surname, std::string area) : User(std::move(name), std::move(surname),
+                                                                                AccessLevel::green) {
         this->property = std::move(area);
     }
 };
 
-class Director : public User
-{
+class Director : public User {
     // real property of director is his last work name
 public:
-    Director(std::string name, std::string surname, std::string work) : User(std::move(name), std::move(surname), AccessLevel::yellow) {
+    Director(std::string name, std::string surname, std::string work) : User(std::move(name), std::move(surname),
+                                                                             AccessLevel::yellow) {
         this->property = std::move(work);
     }
 };
 
-class Admin : public User
-{
+class Admin : public User {
     // real property of any admin in our world is his nickname which he uses for games :)
 public:
-    Admin(std::string name, std::string surname, std::string nickname) : User(std::move(name), std::move(surname), AccessLevel::red) {
+    Admin(std::string name, std::string surname, std::string nickname) : User(std::move(name), std::move(surname),
+                                                                              AccessLevel::red) {
         this->property = std::move(nickname);
     }
+
+    std::vector<std::string *> get_actions() override {
+        auto common_res = User::get_actions();
+        common_res.emplace_back(new std::string("grant access"));
+        return common_res;
+    }
+
     bool is_admin() override {
         return true;
     }
-    bool grant_access(User* user, Room* room) {
+
+    bool grant_access(User *user, Room *room) {
         if (room->access(user)) {
             // already have an access
             return true;

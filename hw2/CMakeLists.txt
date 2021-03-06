@@ -10,4 +10,4 @@ add_executable(hw2
         utils/Rooms.h
         utils/UniversityUsers.h
         utils/User.h
-        main.cpp)
+        main.cpp utils/Security.h utils/Password.h)
