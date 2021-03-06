@@ -1,6 +1,24 @@
 #include <iostream>
+#include <vector>
 #include "utils/UniversityUsers.h"
 #include "utils/Rooms.h"
+#include "utils/Security.h"
+
+template <class T>
+/*
+ * Function accepts a vector of pointers to generic type T
+ * User has to input an index which he chooses from this vector
+ */
+int select_element(std::vector<T*> variants) {
+    int idx = 0;
+    for (auto element: variants) {
+        std::cout << "(" << idx++ << ") " << *element << std::endl;
+    }
+    int user_idx;
+    std::cin >> user_idx;
+    return user_idx;
+}
+
 
 int main() {
     auto director = new Director("Kirill", "Semenikhin", "Microsoft");
@@ -38,5 +56,68 @@ int main() {
     auto student14 = new Student("Mikhail", "Panimash", "BS20-03");
     auto student15 = new Student("Sergey", "Pasynkov", "BS20-03");
     auto student16 = new Student("Makar", "Shevchenko", "BS20-03");
+
+    auto director_cabinet = new Cabinet("director_cabinet", director);
+    auto prof1_cabinet = new Cabinet("Igor Gaponov cabinet", prof1);
+    auto prof2_cabinet = new Cabinet("Alexandr Klimchik cabinet", prof2);
+    auto prof3_cabinet = new Cabinet("Eugene Zouev cabinet", prof3);
+    auto prof4_cabinet = new Cabinet("Rasheed Hussain cabinet", prof4);
+    auto study_room = new ClassRoom("312");
+    auto conference_hall = new ConferenceRoom("East Room");
+    auto lecture_room = new LectureRoom("108");
+    auto robotics_garage = new LabCabinet("Robotics Garage", {worker1, worker2, worker3, worker4, worker5});
+    auto software_lab = new LabCabinet("AI and Software Production lab", {worker6, worker7, worker8});
+
+    // vector contains all people present in this solution
+    std::vector<User*> university_people;
+    {
+        university_people.push_back(director);
+        university_people.push_back(admin1);
+        university_people.push_back(admin2);
+        university_people.push_back(prof1);
+        university_people.push_back(prof1);
+        university_people.push_back(prof2);
+        university_people.push_back(prof3);
+        university_people.push_back(prof4);
+        university_people.push_back(worker1);
+        university_people.push_back(worker2);
+        university_people.push_back(worker3);
+        university_people.push_back(worker4);
+        university_people.push_back(worker5);
+        university_people.push_back(worker6);
+        university_people.push_back(worker7);
+        university_people.push_back(worker8);
+        university_people.push_back(student1);
+        university_people.push_back(student2);
+        university_people.push_back(student3);
+        university_people.push_back(student4);
+        university_people.push_back(student5);
+        university_people.push_back(student6);
+        university_people.push_back(student7);
+        university_people.push_back(student8);
+        university_people.push_back(student9);
+        university_people.push_back(student10);
+        university_people.push_back(student11);
+        university_people.push_back(student12);
+        university_people.push_back(student13);
+        university_people.push_back(student14);
+        university_people.push_back(student15);
+        university_people.push_back(student16);
+    }
+    // vector contains all rooms implemented in this solution
+    std::vector<Room*> university_building; {
+        university_building.push_back(director_cabinet);
+        university_building.push_back(study_room);
+        university_building.push_back(conference_hall);
+        university_building.push_back(lecture_room);
+        university_building.push_back(robotics_garage);
+        university_building.push_back(software_lab);
+        university_building.push_back(prof1_cabinet);
+        university_building.push_back(prof2_cabinet);
+        university_building.push_back(prof3_cabinet);
+        university_building.push_back(prof4_cabinet);
+    }
+
+
 
 }
