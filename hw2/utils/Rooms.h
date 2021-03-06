@@ -66,8 +66,9 @@ private:
     std::vector<User *> granted_users;
 
 public:
-    LabCabinet(std::string id) : Room(std::move(id), AccessLevel::green) {
+    LabCabinet(std::string id, std::vector<User*> users) : Room(std::move(id), AccessLevel::green) {
         Room::special = true;
+        this->granted_users = users;
     }
     // Overriding method for access because user should be in granted_users list
     bool access(User *user)

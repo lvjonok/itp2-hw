@@ -10,6 +10,7 @@ protected:
     AccessLevel level;
     std::string name;
     std::string surname;
+    std::string property = "";
 public:
     User(std::string name, std::string surname, AccessLevel level) {
         this->name = std::move(name);
@@ -25,11 +26,14 @@ public:
     virtual bool is_admin() {
         return false;
     }
+    virtual std::string get_property() {
+        return this->property;
+    }
     friend std::ostream& operator<< ( std::ostream& os, const User& user );
 };
 
 std::ostream& operator<< ( std::ostream& os, const User& user ) {
-    os << user.name << " " << user.surname << " " << user.level;
+    os << user.name << " " << user.surname << " " << user.property << " " << user.level;
 
     return os;
 }
