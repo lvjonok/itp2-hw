@@ -96,6 +96,7 @@ public:
                 return false;
         }
         this->granted_users.push_back(user);
+        return true;
     }
 };
 
@@ -133,6 +134,7 @@ public:
                 return false;
         }
         this->granted_users.push_back(user);
+        return true;
     }
 };
 

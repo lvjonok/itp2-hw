@@ -15,10 +15,20 @@ int select_element(std::vector<T *> variants) {
         std::cout << "(" << idx++ << ") " << *element << std::endl;
     }
     int user_idx = -1;
+    std::string user_input = "";
+    std::cin >> user_input;
     while (user_idx < 0 || user_idx >= variants.size()) {
-        std::cin >> user_idx;
+        try {
+            user_idx = stoi(user_input);
+        } catch (...) {
+            std::cout << "Cannot parse index from input" << std::endl;
+            std::cin >> user_input;
+            continue;
+        }
+
         if ((user_idx < 0 || user_idx >= variants.size())) {
             std::cout << "You entered invalid index, pls, try again." << std::endl;
+            std::cin >> user_input;
         }
     }
 

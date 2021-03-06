@@ -64,11 +64,12 @@ public:
     bool grant_access(User *user, Room *room) {
         if (room->access(user)) {
             // already have an access
-            return true;
+            return false;
         } else {
             // in general lvl of access should be at least equal to lvl of room
             user->add_level(room->get_level());
             if (room->is_special()) room->add_user(user);
+            return true;
         }
     }
 };
