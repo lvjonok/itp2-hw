@@ -10,12 +10,14 @@ protected:
     AccessLevel level;
     std::string name;
     std::string surname;
+    std::string type;
     std::string property = "";
 public:
-    User(std::string name, std::string surname, AccessLevel level) {
+    User(std::string name, std::string surname, AccessLevel level, std::string type) {
         this->name = std::move(name);
         this->surname = std::move(surname);
         this->level = level;
+        this->type = type;
     }
 
     AccessLevel get_level() {
@@ -53,7 +55,7 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &os, const User &user) {
-    os << user.name << " " << user.surname << " | " << user.property << " | " << user.level;
+    os << user.type << " ||| " <<  user.name << " " << user.surname << " | " << user.property << " | " << user.level;
 
     return os;
 }
