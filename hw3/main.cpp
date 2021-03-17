@@ -88,8 +88,8 @@ int main()
 {
     auto director = new Director("Kirill", "Semenikhin", "Microsoft");
 
-    auto admin1 = new Admin("(Admin) Andrew", "Korobov", "andrey228");
-    auto admin2 = new Admin("(Admin) Nikita", "Takov", "nick420069");
+    auto admin1 = new Admin("Andrew", "Korobov", "andrey228");
+    auto admin2 = new Admin("Nikita", "Takov", "nick420069");
 
     auto prof1 = new Professor("Igor", "Gaponov", "Head, Lab of Intelligent Robotics Systems");
     auto prof2 = new Professor("Alexandr", "Klimchik",
@@ -124,21 +124,27 @@ int main()
     auto student15 = new Student("Sergey", "Pasynkov", "BS20-03");
     auto student16 = new Student("Makar", "Shevchenko", "BS20-03");
 
+    auto guest1 = new Guest("Vladimir", "Putin", "Sbor stipy");
+    auto guest2 = new Guest("Alexey", "Navalny", "Kuda delas' stipa");
+    auto mama = new Guest("Marina", "Kozlova", "Posmotret' gde uchitsa son");
+    auto premier_ministr = new Guest("Mike", "Mishustin", "Hochet vypendritsa");
+
     auto director_cabinet = new Cabinet("director_cabinet", director);
     auto prof1_cabinet = new Cabinet("Igor Gaponov cabinet", prof1);
     auto prof2_cabinet = new Cabinet("Alexandr Klimchik cabinet", prof2);
     auto prof3_cabinet = new Cabinet("Eugene Zouev cabinet", prof3);
     auto prof4_cabinet = new Cabinet("Rasheed Hussain cabinet", prof4);
     auto study_room = new ClassRoom("312");
-    auto conference_hall = new ConferenceRoom("East Room");
+    auto conference_hall = new ConferenceRoom("111");
+    auto conference_hall1 = new ConferenceRoom("211");
+    auto conference_hall2 = new ConferenceRoom("341");
     auto lecture_room = new LectureRoom("108");
     auto robotics_garage = new LabCabinet("Robotics Garage", {worker1, worker2, worker3, worker4, worker5});
     auto software_lab = new LabCabinet("AI and Software Production lab", {worker6, worker7, worker8});
 
-    std::vector<User *> admins {
+    std::vector<User *> admins{
         admin1,
-        admin2
-    };
+        admin2};
 
     // vector contains all people present in this solution
     std::vector<User *> university_people;
@@ -174,6 +180,10 @@ int main()
         university_people.push_back(student14);
         university_people.push_back(student15);
         university_people.push_back(student16);
+        university_people.push_back(guest1);
+        university_people.push_back(guest2);
+        university_people.push_back(mama);
+        university_people.push_back(premier_ministr);
     }
     // vector contains all rooms implemented in this solution
     std::vector<Room *> university_building;
@@ -181,6 +191,8 @@ int main()
         university_building.push_back(director_cabinet);
         university_building.push_back(study_room);
         university_building.push_back(conference_hall);
+        university_building.push_back(conference_hall1);
+        university_building.push_back(conference_hall2);
         university_building.push_back(lecture_room);
         university_building.push_back(robotics_garage);
         university_building.push_back(software_lab);
@@ -260,12 +272,12 @@ int main()
         // Case 7: EMERGENCY (available only for admins) opens all rooms in the building
         case 7:
         {
-            std::cout 
+            std::cout
                 << "You toggled emergency button as admin. "
-                    "All rooms will change their emergency access level. "
-                    "To switch off emergency, invoke this case one more time." 
+                   "All rooms will change their emergency access level. "
+                   "To switch off emergency, invoke this case one more time."
                 << std::endl;
-            
+
             // we cast user to Admin because it is definetly him
             ((Admin *)current_user)->enable_emergency(university_building);
         }
