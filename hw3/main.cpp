@@ -1,32 +1,40 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "utils/UniversityUsers.h"
 #include "utils/Rooms.h"
 #include "utils/Security.h"
 
-template<class T>
+template <class T>
 /*
  * Function accepts a vector of pointers to generic type T
  * User has to input an index which he chooses from this vector
  */
-int select_element(std::vector<T *> variants) {
+int select_element(std::vector<T *> variants)
+{
     int idx = 0;
-    for (auto element: variants) {
+    for (auto element : variants)
+    {
         std::cout << "(" << idx++ << ") " << *element << std::endl;
     }
     int user_idx = -1;
     std::string user_input = "";
     std::cin >> user_input;
-    while (user_idx < 0 || user_idx >= variants.size()) {
-        try {
+    while (user_idx < 0 || user_idx >= variants.size())
+    {
+        try
+        {
             user_idx = stoi(user_input);
-        } catch (...) {
+        }
+        catch (...)
+        {
             std::cout << "Cannot parse index from input" << std::endl;
             std::cin >> user_input;
             continue;
         }
 
-        if ((user_idx < 0 || user_idx >= variants.size())) {
+        if ((user_idx < 0 || user_idx >= variants.size()))
+        {
             std::cout << "You entered invalid index, pls, try again." << std::endl;
             std::cin >> user_input;
         }
@@ -38,29 +46,37 @@ int select_element(std::vector<T *> variants) {
 /*
  * Function allows to select the current user of this system
  */
-User *select_user(std::vector<User *> users) {
+User *select_user(const std::vector<User *> &users, const std::vector<User *> &admins)
+{
     User *current_user = nullptr;
 
     // admins are in these indices
-    auto admin1 = users[2];
-    auto admin2 = users[3];
+    auto admin1 = users[1];
+    auto admin2 = users[2];
 
     bool appropriate_selection = false;
-    do {
+    do
+    {
         int user_idx = select_element(users);
         current_user = users[user_idx];
-        if (current_user == admin1 || current_user == admin2) {
+        if (std::find(admins.begin(), admins.end(), current_user) != admins.end())
+        {
             std::cout << "[INFO] You are trying to enter as admin. Enter the password:" << std::endl;
             std::string user_password;
             std::cin >> user_password;
-            if (is_password(user_password)) {
+            if (is_password(user_password))
+            {
                 std::cout << "[INFO] Password is correct. Enjoy!" << std::endl;
                 appropriate_selection = true;
-            } else {
+            }
+            else
+            {
                 appropriate_selection = false;
                 std::cout << "[INFO] Password is wrong. You return to user selection menu" << std::endl;
             }
-        } else {
+        }
+        else
+        {
             appropriate_selection = true;
         }
     } while (!appropriate_selection);
@@ -68,11 +84,12 @@ User *select_user(std::vector<User *> users) {
     return current_user;
 }
 
-int main() {
+int main()
+{
     auto director = new Director("Kirill", "Semenikhin", "Microsoft");
 
-    auto admin1 = new Admin("Andrew", "Korobov", "andrey228");
-    auto admin2 = new Admin("Nikita", "Takov", "nick420069");
+    auto admin1 = new Admin("(Admin) Andrew", "Korobov", "andrey228");
+    auto admin2 = new Admin("(Admin) Nikita", "Takov", "nick420069");
 
     auto prof1 = new Professor("Igor", "Gaponov", "Head, Lab of Intelligent Robotics Systems");
     auto prof2 = new Professor("Alexandr", "Klimchik",
@@ -117,6 +134,11 @@ int main() {
     auto lecture_room = new LectureRoom("108");
     auto robotics_garage = new LabCabinet("Robotics Garage", {worker1, worker2, worker3, worker4, worker5});
     auto software_lab = new LabCabinet("AI and Software Production lab", {worker6, worker7, worker8});
+
+    std::vector<User *> admins {
+        admin1,
+        admin2
+    };
 
     // vector contains all people present in this solution
     std::vector<User *> university_people;
@@ -170,65 +192,86 @@ int main() {
 
     std::cout << "To start with, select yourself. Input idx from parenthesis to select needed user:\n";
 
-    auto current_user = select_user(university_people);
+    auto current_user = select_user(university_people, admins);
     std::cout << "[INFO] You are " << current_user->get_name_surname() << std::endl;
 
     int action = -1;
-    while (action != 0) {
+    while (action != 0)
+    {
         action = select_element(current_user->get_actions());
         std::cout << "[INFO] User selected ==> " << *current_user->get_actions()[action] << std::endl;
-        switch (action) {
-            // Case 1: change of user
-            case 1: {
-                current_user = select_user(university_people);
-                std::cout << "[INFO] You changed user. Now you are " << current_user->get_name_surname() << std::endl;
-            }
-                break;
-            // Case 2: Access to room
-            case 2: {
-                auto selected_room = university_building[select_element(university_building)];
-                auto result = selected_room->access(current_user);
-                if (result) std::cout << "[INFO] You have access to this room. Enter!)" << std::endl;
-                else std::cout << "[INFO] Access denied. You have no rights to enter. Stay away!" << std::endl;
-            }
-                break;
-            // Case 3: Get name and surname of user
-            case 3: {
-                auto result = current_user->get_name_surname();
-                std::cout << "[INFO] You are " << result << std::endl;
-            }
-                break;
-            // Case 4: Get property of user
-            case 4: {
-                auto result = current_user->get_property();
-                std::cout << "[INFO] Your property is " << result << std::endl;
-            }
-                break;
-            // Case 5: Get level of access of user
-            case 5: {
-                auto result = current_user->get_level();
-                std::cout << "[INFO] Your level is " << result << std::endl;
-            }
-                break;
-            // Case 6: Grant Access (available only for admins)
-            case 6: {
-                std::cout
-                        << "[INFO] To grant access to someone, on first selection choose person, then choose room. "
-                           "After this an access will be granted."
-                        << std::endl;
-                auto selected_user = university_people[select_element(university_people)];
-                auto selected_room = university_building[select_element(university_building)];
+        switch (action)
+        {
+        // Case 1: change of user
+        case 1:
+        {
+            current_user = select_user(university_people, admins);
+            std::cout << "[INFO] You changed user. Now you are " << current_user->get_name_surname() << std::endl;
+        }
+        break;
+        // Case 2: Access to room
+        case 2:
+        {
+            auto selected_room = university_building[select_element(university_building)];
+            auto result = selected_room->access(current_user);
+            if (result)
+                std::cout << "[INFO] You have access to this room. Enter!)" << std::endl;
+            else
+                std::cout << "[INFO] Access denied. You have no rights to enter. Stay away!" << std::endl;
+        }
+        break;
+        // Case 3: Get name and surname of user
+        case 3:
+        {
+            auto result = current_user->get_name_surname();
+            std::cout << "[INFO] You are " << result << std::endl;
+        }
+        break;
+        // Case 4: Get property of user
+        case 4:
+        {
+            auto result = current_user->get_property();
+            std::cout << "[INFO] Your property is " << result << std::endl;
+        }
+        break;
+        // Case 5: Get level of access of user
+        case 5:
+        {
+            auto result = current_user->get_level();
+            std::cout << "[INFO] Your level is " << result << std::endl;
+        }
+        break;
+        // Case 6: Grant Access (available only for admins)
+        case 6:
+        {
+            std::cout
+                << "[INFO] To grant access to someone, on first selection choose person, then choose room. "
+                   "After this an access will be granted."
+                << std::endl;
+            auto selected_user = university_people[select_element(university_people)];
+            auto selected_room = university_building[select_element(university_building)];
 
-                std::cout << "[INFO] You grant " << *selected_user << " an access to " << *selected_room << std::endl;
+            std::cout << "[INFO] You grant " << *selected_user << " an access to " << *selected_room << std::endl;
 
-                // we cast current user because this action is available only for admin
-                ((Admin *) current_user)->grant_access(selected_user, selected_room);
-            }
-                break;
-            default:
-                break;
+            // we cast current user because this action is available only for admin
+            ((Admin *)current_user)->grant_access(selected_user, selected_room);
+        }
+        break;
+        // Case 7: EMERGENCY (available only for admins) opens all rooms in the building
+        case 7:
+        {
+            std::cout 
+                << "You toggled emergency button as admin. "
+                    "All rooms will change their emergency access level. "
+                    "To switch off emergency, invoke this case one more time." 
+                << std::endl;
+            
+            // we cast user to Admin because it is definetly him
+            ((Admin *)current_user)->enable_emergency(university_building);
+        }
+        break;
+        default:
+            break;
         }
     }
-
-
 }
