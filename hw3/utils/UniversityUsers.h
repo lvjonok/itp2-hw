@@ -6,11 +6,20 @@
 #ifndef ITP2_HW_UNIVERSITYUSERS_H
 #define ITP2_HW_UNIVERSITYUSERS_H
 
+class Guest : public User {
+    // real property of guest is the purpose of visiting
+public:
+    Guest(std::string name, std::string surname, std::string purpose) : User(std::move(name), std::move(surname),
+                                                                                AccessLevel::blue, "Guest") {
+        this->property = std::move(purpose);
+    }
+};
+
 class Student : public User {
     // real property of student is having his group_id, like "BS20-03"
 public:
     Student(std::string name, std::string surname, std::string group_id) : User(std::move(name), std::move(surname),
-                                                                                AccessLevel::yellow) {
+                                                                                AccessLevel::yellow, "Student") {
         this->property = std::move(group_id);
     }
 };
@@ -20,7 +29,7 @@ class Professor : public User {
     // real property of professor is his/her position in university labs
 public:
     Professor(std::string name, std::string surname, std::string title) : User(std::move(name), std::move(surname),
-                                                                               AccessLevel::yellow) {
+                                                                               AccessLevel::yellow, "Professor") {
         this->property = std::move(title);
     }
 };
@@ -29,7 +38,7 @@ class LabEmployee : public User {
     // real property of lab employee is his/her area_of_interest which is pretty much the same as the name of lab
 public:
     LabEmployee(std::string name, std::string surname, std::string area) : User(std::move(name), std::move(surname),
-                                                                                AccessLevel::green) {
+                                                                                AccessLevel::green, "LabEmployee") {
         this->property = std::move(area);
     }
 };
@@ -38,7 +47,7 @@ class Director : public User {
     // real property of director is his last work name
 public:
     Director(std::string name, std::string surname, std::string work) : User(std::move(name), std::move(surname),
-                                                                             AccessLevel::yellow) {
+                                                                             AccessLevel::yellow, "Director") {
         this->property = std::move(work);
     }
 };
@@ -47,7 +56,7 @@ class Admin : public User {
     // real property of any admin in our world is his nickname which he uses for games :)
 public:
     Admin(std::string name, std::string surname, std::string nickname) : User(std::move(name), std::move(surname),
-                                                                              AccessLevel::red) {
+                                                                              AccessLevel::red, "Admin") {
         this->property = std::move(nickname);
     }
 
