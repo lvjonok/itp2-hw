@@ -15,15 +15,21 @@ protected:
     // In case of emergency, all rooms will be opened
     bool emergency = false;
     std::string id;
+    std::string type;
 
 public:
-    Room(std::string id, AccessLevel lvl) : id(id), level(lvl) {}
+    Room(std::string id, AccessLevel lvl, std::string type) : id(id), level(lvl), type(type) {}
 
     // method toogles emergency button, available only for admin access
     void toggle_emergency(User *user)
     {
         if (user->is_admin())
             emergency = !emergency;
+    }
+
+    std::string get_type() const
+    {
+        return this->type;
     }
 
     std::string get_id() const
@@ -51,7 +57,8 @@ public:
     virtual bool access(User *user)
     {
         // for hw3 new situation for granting access is emergency situation
-        if (this->emergency) return true;
+        if (this->emergency)
+            return true;
         return this->level <= user->get_level();
     }
 
@@ -60,7 +67,7 @@ public:
 
 std::ostream &operator<<(std::ostream &os, const Room &room)
 {
-    os << room.get_id() << " " << room.get_level();
+    os << room.get_type() << " ||| " << room.get_id() << " " << room.get_level();
     return os;
 }
 
@@ -68,21 +75,43 @@ std::ostream &operator<<(std::ostream &os, const Room &room)
 class ClassRoom : public Room
 {
 public:
-    ClassRoom(std::string id) : Room(std::move(id), AccessLevel::no_level) {}
+    ClassRoom(std::string id) : Room(std::move(id), AccessLevel::no_level, "ClassRoom") {}
+    // we need to override default access function to prohibit Guests access to this room (no level is lower than blue)
+    bool access(User *user) override
+    {
+        // for hw3 new situation for granting access is emergency situation
+        if (this->emergency)
+            return true;
+
+        // prohibiting access
+        if (user->get_level() == AccessLevel::blue)
+            return false;
+
+        return true;
+    }
 };
 
 // class for lecture room which can be accesses by everyone with level higher or equal than green
 class LectureRoom : public Room
 {
 public:
-    LectureRoom(std::string id) : Room(std::move(id), AccessLevel::green) {}
+    LectureRoom(std::string id) : Room(std::move(id), AccessLevel::green, "LectureRoom") {}
+    // overriding function of access for blue users
+    bool access(User *user) override
+    {
+        // for hw3 new situation for granting access is emergency situation
+        if (this->emergency)
+            return true;
+        // in hw3 lecture room can be accessed by people with blue level of access
+        return (user->get_level() == AccessLevel::blue) || this->level <= user->get_level();
+    }
 };
 
 // class for conference room which can be accesses by everyone with level higher or equal than yellow
 class ConferenceRoom : public Room
 {
 public:
-    ConferenceRoom(std::string id) : Room(std::move(id), AccessLevel::yellow) {}
+    ConferenceRoom(std::string id) : Room(std::move(id), AccessLevel::yellow, "ConferenceRoom") {}
     // overriding function of access for blue users
     bool access(User *user) override
     {
@@ -111,7 +140,7 @@ private:
     std::vector<User *> granted_users;
 
 public:
-    LabCabinet(std::string id, std::vector<User *> users) : Room(std::move(id), AccessLevel::green)
+    LabCabinet(std::string id, std::vector<User *> users) : Room(std::move(id), AccessLevel::green, "LabCabinet")
     {
         Room::special = true;
         this->granted_users = std::move(users);
@@ -157,7 +186,7 @@ private:
     std::vector<User *> granted_users;
 
 public:
-    Cabinet(std::string id, User *owner) : Room(std::move(id), AccessLevel::yellow)
+    Cabinet(std::string id, User *owner) : Room(std::move(id), AccessLevel::yellow, "Cabinet")
     {
         this->owner = owner;
         Room::special = true;
