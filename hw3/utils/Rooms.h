@@ -50,6 +50,8 @@ public:
 
     virtual bool access(User *user)
     {
+        // for hw3 new situation for granting access is emergency situation
+        if (this->emergency) return true;
         return this->level <= user->get_level();
     }
 
@@ -82,8 +84,11 @@ class ConferenceRoom : public Room
 public:
     ConferenceRoom(std::string id) : Room(std::move(id), AccessLevel::yellow) {}
     // overriding function of access for blue users
-    bool access(User *user)
+    bool access(User *user) override
     {
+        // for hw3 new situation for granting access is emergency situation
+        if (this->emergency)
+            return true;
         // in hw3 ConferenceRoom can be accessed by people with yellow or higher
         // or with people with blue level of access if Room id starts with '1' (on the first floor)
         if (user->get_level() == AccessLevel::blue && this->get_id()[0] == '1')
@@ -113,8 +118,11 @@ public:
     }
 
     // Overriding method for access because user should be in granted_users list
-    bool access(User *user)
+    bool access(User *user) override
     {
+        // for hw3 new situation for granting access is emergency situation
+        if (this->emergency)
+            return true;
         if (user->is_admin())
             return true;
         // we look through all granted users and in case of match give access
@@ -158,6 +166,9 @@ public:
     // Overriding method for access because user should be in granted_users list
     bool access(User *user) override
     {
+        // for hw3 new situation for granting access is emergency situation
+        if (this->emergency)
+            return true;
         // base case for granting an access is being the owner of this cabinet
         if (user == owner || user->is_admin())
             return true;
