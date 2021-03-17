@@ -4,6 +4,7 @@
 /*
 Access levels:
 no_level - ClassRoom,
+blue - LectureRoom, ConferenceRooms on the first floor
 green - LabCabinet, ClassRoom, LectureRoom
 yellow - ClassRoom, LectureRoom, ConferenceRoom, dir/prof cabinet,
 red - all rooms
@@ -11,15 +12,19 @@ red - all rooms
 
 enum class AccessLevel : int {
     no_level = 0,
-    green = 1,
-    yellow = 2,
-    red = 3
+    blue = 1,
+    green = 2,
+    yellow = 3,
+    red = 4
 };
 
 std::ostream &operator<<(std::ostream &os, const AccessLevel &a) {
     switch (a) {
         case AccessLevel::no_level:
             os << "no_level";
+            break;
+        case AccessLevel::blue:
+            os << "blue";
             break;
         case AccessLevel::green:
             os << "green";
