@@ -20,11 +20,16 @@ protected:
 public:
     Room(std::string id, AccessLevel lvl, std::string type) : id(id), level(lvl), type(type) {}
 
-    // method toogles emergency button, available only for admin access
-    void toggle_emergency(User *user)
+    // method toogles emergency button, available for all users
+    void toggle_emergency()
+    {
+        emergency = true;
+    }
+    // method disables emergency, available only for admin access
+    void disable_emergency(User *user)
     {
         if (user->is_admin())
-            emergency = !emergency;
+            emergency = false;
     }
 
     std::string get_type() const

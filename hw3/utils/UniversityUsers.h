@@ -63,7 +63,7 @@ public:
     std::vector<std::string *> get_actions() override {
         auto common_res = User::get_actions();
         common_res.emplace_back(new std::string("grant access"));
-        common_res.emplace_back(new std::string("toggle emergency"));
+        common_res.emplace_back(new std::string("disable emergency"));
         return common_res;
     }
 
@@ -82,10 +82,9 @@ public:
             return true;
         }
     }
-    // method available only for admin, to open all passed rooms in case of emergency
-    bool enable_emergency(const std::vector<Room*> &rooms) {
+    bool disable_emergency(const std::vector<Room*> &rooms) {
         for (auto room : rooms) {
-            room->toggle_emergency(this);
+            room->disable_emergency(this);
         }
     }
 };

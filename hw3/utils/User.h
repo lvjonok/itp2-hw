@@ -42,15 +42,16 @@ public:
 
     virtual std::vector<std::string *> get_actions() {
         return {
-                new std::string("exit (stop simulation)"),
+            new std::string("exit (stop simulation)"),
                 new std::string("change user"),
                 new std::string("access to certain room"),
                 new std::string("get user name and surname"),
                 new std::string("get user property"),
-                new std::string("get user level")
+                new std::string("get user level"),
+                // add a new action which can be done by all users
+                new std::string("toggle emergency")
         };
     }
-
     friend std::ostream &operator<<(std::ostream &os, const User &user);
 };
 
