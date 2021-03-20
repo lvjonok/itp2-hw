@@ -253,8 +253,22 @@ int main()
             std::cout << "[INFO] Your level is " << result << std::endl;
         }
         break;
-        // Case 6: Grant Access (available only for admins)
+        // Case 6: EMERGENCY (available only for admins) opens all rooms in the building
         case 6:
+        {
+            std::cout
+                << "You toggled emergency button. "
+                   "All rooms will change their emergency access level. "
+                   "To switch off emergency, ask admin (login as admin) to disable emergency situation if all is ok."
+                << std::endl;
+
+            for (auto room: university_building) {
+                room->toggle_emergency();
+            }
+        }
+        break;
+        // Case 7: Grant Access (available only for admins)
+        case 7:
         {
             std::cout
                 << "[INFO] To grant access to someone, on first selection choose person, then choose room. "
@@ -269,19 +283,15 @@ int main()
             ((Admin *)current_user)->grant_access(selected_user, selected_room);
         }
         break;
-        // Case 7: EMERGENCY (available only for admins) opens all rooms in the building
-        case 7:
+        case 8:
         {
             std::cout
-                << "You toggled emergency button as admin. "
-                   "All rooms will change their emergency access level. "
-                   "To switch off emergency, invoke this case one more time."
+                << "You disabled emergency as admin. "
+                   "All rooms now have default level of access. "
                 << std::endl;
 
-            // we cast user to Admin because it is definetly him
-            ((Admin *)current_user)->enable_emergency(university_building);
+            ((Admin *)current_user)->disable_emergency(university_building);
         }
-        break;
         default:
             break;
         }
