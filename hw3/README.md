@@ -2,6 +2,19 @@
 
 ## Task implementation:
 
+### Difference between previous homework:
+
+1. new "blue" level of access for guests
+1. "emergency" button for simulation added for all users. All users can toggle emergency button 
+and enable access for ALL rooms in university
+1. "disable emergency" action for admin. Only admin can disable emergency in case when everything is okay.
+
+#### Changes in simulation:
+1. Now it displays before each room or user its type. Helps for better understanding and testing.
+2. Added 4 guests with special property: purpose of visiting.
+
+## Evething later is the same as in the previous homework
+
 ### In my system there is the following hierarchy of access:
 
 1. "no_level" - access only to ClassRoom
