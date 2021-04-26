@@ -6,6 +6,10 @@
 #define CAR_H
 
 namespace car {
+
+// Exception would be thrown, if car was not validated yet
+class CarNotValidated {};
+
 enum class CarType { Economy, Comfort, ComfortPlus, Business };
 // Function returns string with CarType enum class
 std::string serialize_car_type(CarType type) {
@@ -27,6 +31,8 @@ class Car {
   std::string current_coordinates;
   std::string color;
   std::string number;
+  // requirement from hw5 to validate a car before the first run
+  bool validated = false;
 
  public:
   Car(CarType _type, std::string _model, std::string _cur_coors,
@@ -36,6 +42,15 @@ class Car {
         current_coordinates(_cur_coors),
         color(_color),
         number(_number) {}
+
+  Car(CarType _type, std::string _model, std::string _cur_coors,
+      std::string _color, std::string _number, bool _validated)
+      : type(_type),
+        model(_model),
+        current_coordinates(_cur_coors),
+        color(_color),
+        number(_number),
+        validated(_validated) {}
 
   // Constructor for Car from database entry
   Car(std::string serialized) {
@@ -58,13 +73,21 @@ class Car {
     current_coordinates = tokens[2];
     color = tokens[3];
     number = tokens[4];
+    // parsing serialized boolean
+    if (tokens[5] == "1") {
+      validated = true;
+    } else {
+      validated = false;
+    }
   }
   // Function returns string with Car class. Format
-  // CarType/Model/Current_coordinates/Color/Number
+  // CarType/Model/Current_coordinates/Color/Number/validated
   car::CarType get_car_type() { return type; }
+  // method returns whether we validated car or not
+  bool is_validated() { return validated; }
   std::string serialize() {
     return serialize_car_type(type) + "/" + model + "/" + current_coordinates +
-           "/" + color + "/" + number;
+           "/" + color + "/" + number + "/" + std::to_string(validated);
   }
   // Method updates current coordinates of a car
   void set_current_coordinates(std::string _cur_coors) {
@@ -78,10 +101,10 @@ class Car {
 class CarEconomy : public Car {
  public:
   CarEconomy(std::string _model, std::string _cur_coors, std::string _color,
-             std::string _number)
+             std::string _number, bool _va)
       : Car(CarType::Economy, _model, _cur_coors, _color, _number) {}
 
-  CarEconomy(std::string serialized) : Car(serialized){}
+  CarEconomy(std::string serialized) : Car(serialized) {}
   // Function returns string with CarEconomy class. Format
   // CarType/Model/Current_coordinates/Color/Number
   std::string serialize() { return Car::serialize(); }
@@ -95,12 +118,16 @@ class CarComfort : public Car {
   CarComfort(std::string _model, std::string _cur_coors, std::string _color,
              std::string _number)
       : Car(CarType::Comfort, _model, _cur_coors, _color, _number) {}
+  CarComfort(std::string _model, std::string _cur_coors, std::string _color,
+             std::string _number, bool _validated)
+      : Car(CarType::Comfort, _model, _cur_coors, _color, _number, _validated) {
+  }
   CarComfort(std::string serialized) : Car(serialized) {
     auto tokens = parser::parse_string(serialized, '/');
-    freeBottleOfwater = std::stoi(tokens[5]);
+    freeBottleOfwater = std::stoi(tokens[6]);
   }
   // Function returns string with CarComfort class. Format
-  // CarType/Model/Current_coordinates/Color/Number/freeBottleOfwater
+  // CarType/Model/Current_coordinates/Color/Number/validated/freeBottleOfwater
   std::string serialize() {
     return Car::serialize() + "/" + std::to_string(freeBottleOfwater);
   }
@@ -118,12 +145,16 @@ class CarComfortPlus : public Car {
   CarComfortPlus(std::string _model, std::string _cur_coors, std::string _color,
                  std::string _number)
       : Car(CarType::ComfortPlus, _model, _cur_coors, _color, _number) {}
+  CarComfortPlus(std::string _model, std::string _cur_coors, std::string _color,
+                 std::string _number, bool _validated)
+      : Car(CarType::Comfort, _model, _cur_coors, _color, _number, _validated) {
+  }
   CarComfortPlus(std::string serialized) : Car(serialized) {
     auto tokens = parser::parse_string(serialized, '/');
-    freeBottleOfwater = std::stoi(tokens[5]);
+    freeBottleOfwater = std::stoi(tokens[6]);
   }
   // Function returns string with CarComfortPlus class. Format
-  // CarType/Model/Current_coordinates/Color/Number/freeBottleOfwater
+  // CarType/Model/Current_coordinates/Color/Number/validated/freeBottleOfwater
   std::string serialize() {
     return Car::serialize() + "/" + std::to_string(freeBottleOfwater);
   }
@@ -141,9 +172,13 @@ class CarBusiness : public Car {
   CarBusiness(std::string _model, std::string _cur_coors, std::string _color,
               std::string _number)
       : Car(CarType::ComfortPlus, _model, _cur_coors, _color, _number) {}
+  CarBusiness(std::string _model, std::string _cur_coors, std::string _color,
+              std::string _number, bool _validated)
+      : Car(CarType::Comfort, _model, _cur_coors, _color, _number, _validated) {
+  }
   CarBusiness(std::string serialized) : Car(serialized) {
     auto tokens = parser::parse_string(serialized, '/');
-    freeBottleOfwater = std::stoi(tokens[5]);
+    freeBottleOfwater = std::stoi(tokens[6]);
   }
 
   // method required by task, returns result of operation
@@ -151,7 +186,7 @@ class CarBusiness : public Car {
     return "Car is parked in front of the entrance";
   }
   // Function returns string with CarBusiness class. Format
-  // CarType/Model/Current_coordinates/Color/Number/freeBottleOfwater
+  // CarType/Model/Current_coordinates/Color/Number/validated/freeBottleOfwater
   std::string serialize() {
     return Car::serialize() + "/" + std::to_string(freeBottleOfwater);
   }
