@@ -136,6 +136,9 @@ class Driver {
   // In my implementation all drivers will accept orders, if they exist
   template <class T>
   T* choose_order(std::vector<T*> available_orders) {
+    // throwing exception that car was not validated to choose orders
+    if (!this->current_car->is_validated()) throw car::CarNotValidated();
+
     this->update_status(DriverStatus::Working);
     std::vector<T*> orders_level;
     // we filter orders such that driver could accept them
@@ -163,9 +166,21 @@ class Driver {
   void select_car(int idx) {
     // check for correctness of idx
     if (idx < 0 || idx >= cars.size()) return;
+
+    // selecting another car for this driver
     current_car = cars[idx];
   }
 };
+
+/**
+ * @brief Login method to choose driver
+ * 
+ * @param drivers 
+ * @param idx 
+ * @return Driver* 
+ */
+Driver* login(std::vector<Driver*> drivers, int idx) { return drivers[idx]; }
+
 };  // namespace driver
 
 #endif
