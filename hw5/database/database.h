@@ -1,12 +1,14 @@
 // Code helps to work with created database
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
+#include "../utils/Admin.h"
 #include "../utils/Driver.h"
 #include "../utils/Order.h"
 #include "../utils/Passenger.h"
+#include "../utils/Permission.h"
 #include "../utils/Ride.h"
 
 #ifndef DATABASE_H
@@ -61,6 +63,15 @@ std::vector<Passenger*> get_passengers() {
   return get<Passenger>("database/passengers.csv");
 }
 
+// Method returns vector with all permissions from database
+std::vector<Permission*> get_permissions() {
+  return get<Permission>("database/permissions.csv");
+}
+
+std::vector<admin::Admin*> get_admins() {
+  return get<admin::Admin>("database/admins.csv");
+}
+
 void load_rides_pending(std::vector<Ride*> _ride) {
   set<Ride>("database/rides_pending.csv", _ride);
 }
@@ -76,6 +87,14 @@ void load_drivers(std::vector<driver::Driver*> drivers) {
 // Method update Database with all passengers
 void load_passengers(std::vector<Passenger*> passengers) {
   set<Passenger>("database/passengers.csv", passengers);
+}
+
+void load_permissions(std::vector<Permission*> permissions) {
+  set<Permission>("database/permissions.csv", permissions);
+}
+
+void load_admins(std::vector<admin::Admin*> admins) {
+  set<admin::Admin>("database/admins.csv", admins);
 }
 };  // namespace database
 
