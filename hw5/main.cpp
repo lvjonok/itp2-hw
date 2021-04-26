@@ -2,6 +2,7 @@
 
 #include "database/database.h"
 #include "utils/Address.h"
+#include "utils/Admin.h"
 #include "utils/Car.h"
 #include "utils/Driver.h"
 #include "utils/Passenger.h"
@@ -16,92 +17,108 @@ int main() {
   auto passengers = database::get_passengers();
   auto pending_rides = database::get_rides_pending();
   auto completed_rides = database::get_rides_complete();
+  auto permissions = database::get_permissions();
+  auto admins = database::get_admins();
 
-  auto main_system =
-      new Gateway(drivers, passengers, pending_rides, completed_rides);
+  auto main_system = new Gateway(drivers, passengers, pending_rides,
+                                 completed_rides, permissions, admins);
 
   auto passenger_gateway = PassengerGateway(main_system);
   auto drivers_gateway = DriverGateway(main_system);
+  auto admin_gateway = AdminGateway(main_system);
 
-  auto pas1 = passengers[0];
+  // login of admin
+  auto admin1 = admin::login(admins, 0);
 
-  // We request a ride which will be found a bit later
-  passenger_gateway.add_ride(new Ride(pas1->create_order(
-      Address("point1"), Address("point2"), car::CarType::Economy, 0)));
+  // login of passenger
+  auto passenger1 = login(passengers, 0);
 
-  auto driver1 = drivers[0];
-  auto current_ride =
+  // login of driver
+  auto driver1 = driver::login(drivers, 1);
+
+  // selecting the car which is not validated
+  driver1->select_car(0);
+  try {
+    auto order = driver1->choose_order(drivers_gateway.get_available_rides());
+  } catch (car::CarNotValidated e) {
+    cout << "Car was not validated and I catched the exception" << endl;
+  }
+
+  // this car is validated
+  driver1->select_car(1);
+
+  // removing ability to take a ride for Dinar (driver)
+  admin_gateway.update_permission(admin1->set_permission("Dinar", 1));
+
+  auto selected_ride =
       driver1->choose_order(drivers_gateway.get_available_rides());
 
-  // Current ride will be nullptr if there are no rides for this driver
-  if (current_ride != nullptr) {
-    // This branch will one more line to "rides_completed.csv" file
-    // Because there is a driver who will accept it
-    drivers_gateway.take_ride(current_ride, driver1);
-
-    auto result = passenger_gateway.ask_for_special_parking(current_ride);
-    // Result will be zero, because it is not Business class
-    cout << "Result of request for special parking: " << result << endl;
-
-    auto coords = passenger_gateway.get_current_coordinates(current_ride);
-    cout << "Result of request for coordinates: " << coords << endl;
-
-    // From ride to ride you can see in row with business car, that number of
-    // bottles decreases
-    drivers_gateway.complete_ride(current_ride);
+  // check that there is a ride, which can be taken by driver
+  if (selected_ride != nullptr) {
+    try {
+      drivers_gateway.take_ride(selected_ride, driver1);
+    } catch (NoPermissionTakeRide e) {
+      cout << "Driver cannot take a ride due to limitations" << endl;
+    }
   }
 
-  // This will add one more line to pending orders in "riders_pending.csv"
-  // Because there are no drivers with ComfortPlus car
-  passenger_gateway.add_ride(new Ride(pas1->create_order(
-      Address("point1"), Address("point2"), car::CarType::ComfortPlus, 0)));
+  // update permission for a driver
+  admin_gateway.update_permission(admin1->set_permission("Dinar", 0));
+  drivers_gateway.take_ride(selected_ride, driver1);
+  cout << "After updated permissions everything is okay" << endl;
 
-  // Business driver
-  auto driver2 = drivers[1];
-
-  // Example of creating new ride with pinned address, and Business type
-  passenger_gateway.add_ride(new Ride(
-      pas1->create_order(Address("point1"), *pas1->get_pinned_addresses()[0],
-                         car::CarType::Business, 0)));
-
-  auto current_ride_business =
-      driver2->choose_order(drivers_gateway.get_available_rides());
-  if (current_ride_business != nullptr) {
-    drivers_gateway.take_ride(current_ride_business, driver2);
-
-    auto result =
-        passenger_gateway.ask_for_special_parking(current_ride_business);
-    // Result will be one, because it is Business class
-    cout << "Result of request for special parking: " << result << endl;
-
-    auto coords =
-        passenger_gateway.get_current_coordinates(current_ride_business);
-    cout << "Result of request for coordinates: " << coords << endl;
-
-    drivers_gateway.complete_ride(current_ride_business);
+  cout << "An attempt to create a new ride for a passenger who now is riding "
+          "already"
+       << endl;
+  auto new_order = passenger1->create_order(
+      Address("retake1"), Address("retake2"), car::CarType::Business, 0);
+  if (get<0>(new_order) == nullptr) {
+    cout << "User is already in the ride, and cannot create a new order"
+         << endl;
   }
 
-  auto history_of_first_passenger = pas1->get_order_history();
-  // History will increase in size after each run
-  cout << "HISTORY OF FIRST PASSENGER" << endl;
-  for (auto order : history_of_first_passenger) {
-    cout << order->get_output_format() << endl;
+  drivers_gateway.complete_ride(selected_ride);
+  new_order = passenger1->create_order(Address("retake1"), Address("retake2"),
+                                       car::CarType::Business, 0);
+  if (get<0>(new_order) != nullptr) {
+    cout << "After finishing the ride everything is okay" << endl;
   }
 
-  auto pas2 = passengers[1];
+  // code 1 for passenger means he cannot add a ride
+  admin_gateway.update_permission(admin1->set_permission("Alex", 1));
+  try {
+    passenger_gateway.add_ride(new Ride(new_order));
+  } catch (NoPermissionAddRide e) {
+    cout << "User cannot add a ride, he is blocked" << endl;
+  }
 
-  // You will see increasing of number of available payment options for second
-  // passenger in database
-  pas2->add_payment_method(
-      new payment::Payment(payment::PaymentMethod::CARD, 0));
+  admin_gateway.update_permission(admin1->set_permission("Alex", 0));
+  cout << "After removing a ban, he can do it" << endl;
+  passenger_gateway.add_ride(new Ride(new_order));
 
-  // This will not add a new pending ride in database, because user had not
-  // enough money in his cash
-  passenger_gateway.add_ride(new Ride(pas2->create_order(
-      Address("retake1"), Address("retake2"), car::CarType::Business, 0)));
+  // adding another order not to run out of orders for tests
+  passenger_gateway.add_ride(new Ride(new_order));
+
+  selected_ride = driver1->choose_order(drivers_gateway.get_available_rides());
+  drivers_gateway.take_ride(selected_ride, driver1);
+
+  cout << "Another ride was taken" << endl;
+  // code 2 for passenger means he cannot ask for special parking
+  admin_gateway.update_permission(admin1->set_permission("Alex", 2));
+
+  try {
+    passenger_gateway.ask_for_special_parking(selected_ride);
+  } catch (NoPermissionAskForSpecialParking e) {
+    cout << "User was blocked to ask for a special parking" << endl;
+  }
+
+  cout << "Current user location is "
+       << passenger_gateway.get_current_coordinates(selected_ride) << endl;
 
   database::load_drivers(drivers);
   database::load_passengers(passengers);
   database::load_rides_completed(main_system->rides_completed);
   database::load_rides_pending(main_system->rides_pending);
+  database::load_permissions(main_system->permissions);
+  database::load_admins(main_system->admins);
 }
