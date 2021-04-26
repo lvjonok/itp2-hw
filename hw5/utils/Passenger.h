@@ -19,6 +19,7 @@ class Passenger {
   std::vector<Order *> order_history;
   std::vector<payment::Payment *> payment_methods;
   std::vector<Address *> pinned_addresses;
+  bool in_a_ride = false;
 
  public:
   Passenger(std::string _name, float _rating,
@@ -28,6 +29,12 @@ class Passenger {
         rating(_rating),
         payment_methods(_payment_methods),
         pinned_addresses(_pinned_addresses) {}
+
+  // Method sets the user to be on a ride
+  void set_on_ride() { in_a_ride = true; }
+  // Method sets the user not to be on a ride
+  void end_ride() { in_a_ride = false; }
+  bool is_on_ride() { return in_a_ride; }
 
   Passenger(std::string serialized) {
     auto tokens = parser::parse_string(serialized, ',');
@@ -101,6 +108,12 @@ class Passenger {
       Address _from, Address _to, car::CarType _type, int payment_idx) {
     auto new_order = new Order(_from, _to, _type);
 
+    // if user is already on a ride, we skip this order (nullptr order will not
+    // be added to pending by PassengerGateway)
+    if (this->is_on_ride()) {
+      return (std::make_tuple(nullptr, this, nullptr, payment_idx));
+    }
+
     bool has_enough_money =
         payment_methods[payment_idx]->get_money() >= new_order->get_price();
 
@@ -115,5 +128,16 @@ class Passenger {
                             payment_idx));
   }
 };
+
+/**
+ * @brief Login method
+ *
+ * @param passengers vector of passengers from system
+ * @param idx index of user to be chosen
+ * @return Passenger*
+ */
+Passenger *login(std::vector<Passenger *> passengers, int idx) {
+  return passengers[idx];
+}
 
 #endif
